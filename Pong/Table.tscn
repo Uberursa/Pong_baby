@@ -1,0 +1,148 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://Pong/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://assets/right_pallete.png" type="Texture" id=2]
+[ext_resource path="res://Pong/ball.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Pong/Table.gd" type="Script" id=4]
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends KinematicBody2D
+
+var speed = 0
+var ball
+
+# delta is the default input, ensures consistent execution speed
+#test edit
+func _physics_process(delta):
+	move_and_slide(Vector2(0, get_ball_direction()) * speed)
+	
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	ball = get_parent().find_node(\"ball\")
+	
+func get_ball_direction():
+	if (ball.position.y - self.position.y > 25):
+		return 1
+	elif (self.position.y - ball.position.y < 25):
+		return -1
+	else:
+		return 0
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+"
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 529.001, 1.96381 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 320.526, 1.48077 )
+
+[sub_resource type="RectangleShape2D" id=4]
+extents = Vector2( 10, 307.111 )
+
+[sub_resource type="RectangleShape2D" id=5]
+extents = Vector2( 10, 307.111 )
+
+[node name="Table" type="Node"]
+script = ExtResource( 4 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+position = Vector2( 78.1024, 309.517 )
+
+[node name="Player2" parent="." instance=ExtResource( 1 )]
+position = Vector2( 942.17, 304.363 )
+script = SubResource( 3 )
+
+[node name="Sprite" parent="Player2" index="0"]
+texture = ExtResource( 2 )
+
+[node name="ball" parent="." instance=ExtResource( 3 )]
+position = Vector2( 506.921, 308.014 )
+
+[node name="Walls" type="Node" parent="."]
+
+[node name="WallBottom" type="StaticBody2D" parent="Walls"]
+position = Vector2( -2, 0 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/WallBottom"]
+position = Vector2( 514.109, 601.98 )
+shape = SubResource( 1 )
+
+[node name="WallTop" type="StaticBody2D" parent="Walls"]
+position = Vector2( -2, 0 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/WallTop"]
+position = Vector2( 508.5, 0.990875 )
+shape = SubResource( 1 )
+
+[node name="WallLeft" type="StaticBody2D" parent="Walls"]
+position = Vector2( -2, 0 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/WallLeft"]
+position = Vector2( 1.58691, 313.92 )
+rotation = 1.5708
+shape = SubResource( 2 )
+
+[node name="PlayerGoal" type="Area2D" parent="Walls/WallLeft"]
+position = Vector2( 3, 0 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/WallLeft/PlayerGoal"]
+position = Vector2( -1.80908, 303.937 )
+shape = SubResource( 4 )
+
+[node name="WallRight" type="StaticBody2D" parent="Walls"]
+position = Vector2( -2, 0 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/WallRight"]
+position = Vector2( 1028.27, 295.966 )
+rotation = 1.5708
+shape = SubResource( 2 )
+
+[node name="AiGoal" type="Area2D" parent="Walls/WallRight"]
+position = Vector2( 3, 0 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/WallRight/AiGoal"]
+position = Vector2( 1024.93, 300.573 )
+shape = SubResource( 5 )
+
+[node name="Goals" type="Node" parent="."]
+
+[node name="PlayerScore" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -73.5
+margin_right = 73.5
+margin_bottom = 76.0
+text = "0"
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AiScore" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -73.5
+margin_right = 73.5
+margin_bottom = 76.0
+text = "0"
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="body_entered" from="Walls/WallLeft/PlayerGoal" to="." method="_on_PlayerGoal_body_entered"]
+[connection signal="body_entered" from="Walls/WallRight/AiGoal" to="." method="_on_AiGoal_body_entered"]
+
+[editable path="Player2"]
